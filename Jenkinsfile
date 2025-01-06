@@ -16,13 +16,13 @@ pipeline {
         stage('Cloning Git') {
             steps {
                 git branch: 'main', url: 'https://github.com/Arthurdlg/s9_devops_grp6_project'
-                ls .
             }
         }
 
         stage('Building Image') {
             steps {
                 script {
+                    ls .
                     projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
                 }
             }
