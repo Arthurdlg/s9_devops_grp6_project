@@ -4,11 +4,11 @@ FROM golang:1.21.5
 WORKDIR /webapi
 
 # Download Go modules
-COPY go.mod ./
+COPY webapi/go.mod ./
 RUN go mod download
 
 # Copy the source code
-COPY *.go ./
+COPY webapi/main.go ./
 
 # Build
 RUN go build -o main
