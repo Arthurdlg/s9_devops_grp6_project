@@ -72,8 +72,8 @@ if pgrep -f "java -jar agent.jar" > /dev/null; then
 	    sleep 3  # Petite pause pour garantir l'arrêt complet du processus
 
 	    # Lancer une nouvelle instance de l'agent Jenkins
-	    java -jar agent.jar -url http://localhost:8080/ -secret e93e2fd05838ab381f00107b69a4b64d09776eea014069f03ba1b6edf06e3960 \
--name "jenkins-slave" -webSocket -workDir "$DIR_FOR_AGENT" &
+	    java -jar agent.jar -url http://localhost:8080/ -secret 5f5aeb8c6bdf2eacdb82050d12c4c676ab6eae9ee71cfb13abe2c7c9bc1c30a9 \
+-name "jenkins-slave-project" -webSocket -workDir "$DIR_FOR_AGENT" &
 	    sleep 5
 	else
 	    echo "L'agent en cours d'exécution ne sera pas arrêté ni redémarré. Continuation du script."
@@ -81,15 +81,15 @@ if pgrep -f "java -jar agent.jar" > /dev/null; then
 else
 	# Aucun agent en cours, lancer une nouvelle instance
 	echo "Aucun agent en cours, lancement d'une nouvelle instance"
-	java -jar agent.jar -url http://localhost:8080/ -secret e93e2fd05838ab381f00107b69a4b64d09776eea014069f03ba1b6edf06e3960 \
--name "jenkins-slave" -webSocket -workDir "$DIR_FOR_AGENT" &
+	java -jar agent.jar -url http://localhost:8080/ -secret 5f5aeb8c6bdf2eacdb82050d12c4c676ab6eae9ee71cfb13abe2c7c9bc1c30a9 \
+-name "jenkins-slave-project" -webSocket -workDir "$DIR_FOR_AGENT" &
 	sleep 5
 fi
 
 # Run de la pipeline
 echo "Lancement de la pipeline..."
 JOB_NAME="DevOps_project_pipeline" # Nom du job Jenkins # TO_DEFINED
-TOKEN_NAME="e93e2fd05838ab381f00107b69a4b64d09776eea014069f03ba1b6edf06e3961" # Jeton d'authentification pour la pipeline # TO_DEFINED
+TOKEN_NAME="e93e2fd05838ab381f00107b69a4b64d09776eea014069f03ba1b6edf06e3962" # Jeton d'authentification pour la pipeline # TO_DEFINED
 curl -u "admin:$JENKINS_PASS" -H ".crumb:$JENKINS_CRUMB" "$JENKINS_URL/job/$JOB_NAME/build?token=$TOKEN_NAME" # -X POST
 sleep 20
 

@@ -1,8 +1,8 @@
-def dockerHub_cred_id = ''
+def dockerHub_cred_id = "22007e59-f9ea-465f-a987-c024984a3144"
 pipeline {
 
   agent {
-    label 'jenkins-slave'
+    label 'jenkins-slave-project'
   }
 
   stages {
