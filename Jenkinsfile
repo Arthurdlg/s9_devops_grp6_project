@@ -37,6 +37,24 @@ pipeline {
             }
         }
 
+        stage('Initialize Kubernetes') {
+            steps {
+                script {
+                    // Vérifier si Kubernetes est accessible
+                    def kubernetesReady = sh(script: "kubectl cluster-info", returnStatus: true) == 0
+
+                    if (!kubernetesReady) {
+                        echo "Kubernetes cluster not reachable. Initializing..."
+                        // Démarrer Minikube (ou une autre solution)
+                        sh "minikube start --driver=docker"
+                        sh "kubectl cluster-info"
+                    } else {
+                        echo "Kubernetes cluster is reachable."
+                    }
+                }
+            }
+        }
+
         stage('Create Namespaces') {
             steps {
                 script {
@@ -63,14 +81,21 @@ pipeline {
             steps {
                 script {
                     sh """
-                    # Lancement des tests dans un pod temporaire
+                    # Crée un pod temporaire pour exécuter les tests
                     kubectl run test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} \
                         --image=golang:1.21 --rm -it --restart=Never -- \
-                        bash -c "cd /app && go test ./tests"
+                        bash -c "
+                            mkdir -p /app/webapi/tests && \
+                            mkdir -p /app/webapi && \
+                            cp -r * /app/webapi && \
+                            cd /app/webapi/tests && \
+                            go test -v ./...
+                        "
                     """
                 }
             }
         }
+
 
         stage('Deploy to Production') {
             when {
