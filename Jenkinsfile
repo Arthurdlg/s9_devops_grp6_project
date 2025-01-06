@@ -14,7 +14,7 @@ pipeline {
     stage('Building Image') {
       steps {
         script {
-	  projectImage = docker.build("dlgart/s9_do_grp6_project:latest")
+	  projectImage = docker.build("efrei2023/s9_do_grp6_project:latest")
 	}
       }
     }
