@@ -19,6 +19,17 @@ pipeline {
       }
     }
 
+    stage('Publish project Image') {
+      steps {
+        script {
+           withDockerRegistry(credentialsId: dockerHub_cred_id) {
+		projectImage.push()
+           }
+        }
+      }
+    }
+	  
+
     stage('Deploy project container') {
       steps {
       	echo "Stopping and removing existing project container if it exists"
@@ -32,5 +43,6 @@ pipeline {
 	"""
       }
     }
+	  
   }
 }
