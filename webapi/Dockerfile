@@ -12,8 +12,6 @@ COPY *.go ./
 
 # Build
 RUN go build -o main
-
 EXPOSE 8080
-
 # Run
 CMD ["./main"]

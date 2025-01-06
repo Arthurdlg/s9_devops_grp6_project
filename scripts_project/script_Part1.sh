@@ -88,7 +88,7 @@ fi
 
 # Run de la pipeline
 echo "Lancement de la pipeline..."
-JOB_NAME="TP1_pipe_writed" # Nom du job Jenkins # TO_DEFINED
+JOB_NAME="DevOps_project_pipeline" # Nom du job Jenkins # TO_DEFINED
 TOKEN_NAME="e93e2fd05838ab381f00107b69a4b64d09776eea014069f03ba1b6edf06e3961" # Jeton d'authentification pour la pipeline # TO_DEFINED
 curl -u "admin:$JENKINS_PASS" -H ".crumb:$JENKINS_CRUMB" "$JENKINS_URL/job/$JOB_NAME/build?token=$TOKEN_NAME" # -X POST
 sleep 20
