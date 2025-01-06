@@ -22,7 +22,6 @@ pipeline {
         stage('Building Image') {
             steps {
                 script {
-                    sh "ls ."
                     projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
                 }
             }
@@ -83,6 +82,7 @@ pipeline {
                 script {
                     try {
                         sh '''
+                        ls .
                         kubectl run test-runner \
                           --namespace=development \
                           --image=golang:1.21 \
@@ -91,9 +91,9 @@ pipeline {
                           -- bash -c "
                             mkdir -p /app/webapi/tests &&
                             mkdir -p /app/webapi &&
-                            cp -r * /app/webapi &&
+                            cp -r /webapi /app/webapi &&
                             cd /app/webapi &&
-                            ls /app/webapi &&
+                            ls . &&
                             go mod download &&
                             cd tests &&
                             go test -v ./...
