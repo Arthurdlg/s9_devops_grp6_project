@@ -22,7 +22,7 @@ pipeline {
         stage('Building Image') {
             steps {
                 script {
-                    ls .
+                    sh "ls ."
                     projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
                 }
             }
