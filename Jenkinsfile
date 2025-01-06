@@ -80,18 +80,25 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh """
-                    # Crée un pod temporaire pour exécuter les tests
-                    kubectl run test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} \
-                        --image=golang:1.21 --rm -it --restart=Never -- \
-                        bash -c "
-                            mkdir -p /app/webapi/tests && \
-                            mkdir -p /app/webapi && \
-                            cp -r * /app/webapi && \
-                            cd /app/webapi/tests && \
+                    try {
+                        sh '''
+                        kubectl run test-runner \
+                          --namespace=development \
+                          --image=golang:1.21 \
+                          --rm -it \
+                          --restart=Never \
+                          --timeout=200s \
+                          -- bash -c "
+                            mkdir -p /app/webapi/tests &&
+                            mkdir -p /app/webapi &&
+                            cp -r * /app/webapi &&
+                            cd /app/webapi/tests &&
                             go test -v ./...
-                        "
-                    """
+                          "
+                        '''
+                    } catch (Exception e) {
+                        error "Tests failed: ${e.message}"
+                    }
                 }
             }
         }
