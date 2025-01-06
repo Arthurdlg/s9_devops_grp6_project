@@ -4,7 +4,7 @@ FROM golang:1.21.5
 WORKDIR /app
 
 # Download Go modules
-COPY webapi/go.mod ./
+COPY go.mod ./
 RUN go mod download
 
 # Copy the source code
