@@ -87,12 +87,13 @@ pipeline {
                           --image=golang:1.21 \
                           --rm -it \
                           --restart=Never \
-                          --timeout=200s \
                           -- bash -c "
                             mkdir -p /app/webapi/tests &&
                             mkdir -p /app/webapi &&
                             cp -r * /app/webapi &&
-                            cd /app/webapi/tests &&
+                            cd /app/webapi &&
+                            go mod download &&
+                            cd tests &&
                             go test -v ./...
                           "
                         '''
@@ -102,7 +103,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Deploy to Production') {
             when {
