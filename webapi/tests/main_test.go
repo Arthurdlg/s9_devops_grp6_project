@@ -9,7 +9,7 @@ import (
 )
 
 func TestHomePage(t *testing.T) {
-	resp, err := http.Get("http://localhost:8080/")
+	resp, err := http.Get("http://localhost:81/")
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
@@ -27,7 +27,7 @@ func TestHomePage(t *testing.T) {
 }
 
 func TestAboutMe(t *testing.T) {
-	resp, err := http.Get("http://localhost:8080/aboutme")
+	resp, err := http.Get("http://localhost:81/aboutme")
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestAboutMe(t *testing.T) {
 }
 
 func TestWhoAmI(t *testing.T) {
-	resp, err := http.Get("http://localhost:8080/whoami")
+	resp, err := http.Get("http://localhost:81/whoami")
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
