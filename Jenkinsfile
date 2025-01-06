@@ -34,12 +34,12 @@ pipeline {
       steps {
       	echo "Stopping and removing existing project container if it exists"
       	sh """
-      		docker stop project || true
-      		docker rm project || true
+      		docker stop main_project || true
+      		docker rm main_project || true
       	"""
         echo "Running project container"
 	sh """
-		docker run -p 8081:80 --name project dlgart/s9_do_grp6_project:1
+		docker run -p 8081:80 --name main_project dlgart/s9_do_grp6_project:1
 	"""
       }
     }
