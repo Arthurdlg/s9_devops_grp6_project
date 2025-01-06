@@ -91,7 +91,7 @@ pipeline {
                           -- bash -c "
                             mkdir -p /app/webapi/tests &&
                             mkdir -p /app/webapi &&
-                            cp -r /webapi /app/webapi &&
+                            cp -r ./webapi /app/webapi &&
                             cd /app/webapi &&
                             ls . &&
                             go mod download &&
