@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-app
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: project-app
+  template:
+    metadata:
+      labels:
+        app: project-app
+    spec:
+      containers:
+        - name: project-container
+          image: efrei2023/s9_do_grp6_project:latest
+          ports:
+            - containerPort: 81
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 81
+            initialDelaySeconds: 5
+            periodSeconds: 10
