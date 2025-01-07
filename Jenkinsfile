@@ -87,9 +87,9 @@ pipeline {
                     // Exécuter les tests dans Minikube avec l'image poussée
                     sh """
                     kubectl run test-runner \
-                      --namespace=development \
+                      --namespace=${env.DEVELOPMENT_NAMESPACE} \
                       --image=${env.IMAGE_NAME}_test:${env.IMAGE_TAG} \
-                      --rm -it \
+                      --rm \
                       --restart=Never \
                       -- bash -c "
                         go test -v ./tests/...
