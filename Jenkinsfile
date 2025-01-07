@@ -82,10 +82,11 @@ stage('Run Tests') {
         script {
             try {
             sh """
-                eval \$(minikube docker-env)  # Configure Docker pour Minikube
+                # Construire l'image localement
                 docker build -f Dockerfile.test -t webapi-test:latest .
-                # Vérifiez si l'image est bien dans Minikube
-                docker images | grep webapi-test
+                # Charger l'image dans Minikube
+                eval \$(minikube docker-env)
+                docker save webapi-test:latest | minikube image load webapi-test:latest
                 kubectl run test-runner \
                   --namespace=development \
                   --image=webapi-test:latest \
