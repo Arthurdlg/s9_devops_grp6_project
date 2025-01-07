@@ -86,7 +86,7 @@ stage('Run Tests') {
                     # Construire l'image localement
                     docker build -f Dockerfile.test -t ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} .
                     # Pousser l'image sur Docker Hub
-                    docker login -u $DOCKER_USERNAME -p \$(cat /run/secrets/$DOCKER_PASSWORD)
+                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                     docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG}
                     """
                 }
@@ -108,7 +108,7 @@ stage('Run Tests') {
                 withCredentials([usernamePassword(credentialsId: dockerHub_cred_id, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                 sh """
                     # Supprimer l'image du hub Docker
-                    docker login -u $DOCKER_USERNAME -p \$(cat /run/secrets/$DOCKER_PASSWORD)
+                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                     docker rmi ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} || true
                     docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} --quiet || true
                 """
