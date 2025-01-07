@@ -77,35 +77,33 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                script {
-                    try {
-                        sh """
-                        ls .
-                        kubectl delete pod test-runner -n=development || true
-                        kubectl run test-runner \
-                          --namespace=development \
-                          --image=golang:1.21 \
-                          --rm -it \
-                          --restart=Never \
-                          -- bash -c "
-                            mkdir -p /app/webapi/tests &&
-                            mkdir -p /app/webapi &&
-                            cp -r ${WORKSPACE}/webapi /app/webapi &&
-                            cd /app/webapi &&
-                            ls . &&
-                            go mod download &&
-                            cd tests &&
-                            go test -v ./...
-                          "
-                        """
-                    } catch (Exception e) {
-                        error "Tests failed: ${e.message}"
-                    }
-                }
+stage('Run Tests') {
+    steps {
+        script {
+            try {
+                sh """
+                ls .
+                kubectl run test-runner \
+                  --namespace=development \
+                  --image=golang:1.21 \
+                  --rm -it \
+                  --restart=Never \
+                  --command -- sleep 3600  # Démarre un conteneur en mode veille pour copier les fichiers
+                kubectl cp ${WORKSPACE}/webapi test-runner:/app/webapi --namespace=development
+                kubectl exec test-runner --namespace=development -- bash -c "
+                    cd /app/webapi &&
+                    ls . &&
+                    go mod download &&
+                    cd tests &&
+                    go test -v ./...
+                "
+                """
+            } catch (Exception e) {
+                error "Tests failed: ${e.message}"
             }
         }
+    }
+}
 
         stage('Deploy to Production') {
             when {
