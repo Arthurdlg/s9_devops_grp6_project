@@ -81,23 +81,33 @@ stage('Run Tests') {
     steps {
         script {
             try {
-            sh """
+                sh """
                 # Construire l'image localement
-                docker build -f Dockerfile.test -t efrei2023/webapi-test:latest .
+                docker build -f Dockerfile.test -t ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} .
 
-                # Charger l'image dans Minikube
-                minikube image load docker.io/efrei2023/webapi_test:latest
+                # Pousser l'image sur Docker Hub
+                docker login -u ${dockerHub_cred_id} -p $(cat /run/secrets/${dockerHub_cred_id})
+                docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG}
+
+                # Exécuter les tests dans Minikube avec l'image poussée
                 kubectl run test-runner \
                   --namespace=development \
-                  --image=efrei2023/webapi-test:latest \
+                  --image=${env.IMAGE_NAME}-test:${env.IMAGE_TAG} \
                   --rm -it \
                   --restart=Never \
                   -- bash -c "
                     go test -v ./tests/...
-              "
-            """ //   docker save webapi-test:latest | kubectl exec -i -n development deployment/test-deployment -- bash -c "cat > /tmp/webapi-test.tar && docker load -i /tmp/webapi-test.tar"
+                  "
+                """
             } catch (Exception e) {
                 error "Tests failed: ${e.message}"
+            } finally {
+                sh """
+                # Supprimer l'image du hub Docker
+                docker login -u ${dockerHub_cred_id} -p $(cat /run/secrets/${dockerHub_cred_id})
+                docker rmi ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} || true
+                docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} --quiet || true
+                """
             }
         }
     }
