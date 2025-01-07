@@ -9,7 +9,7 @@ RUN go mod download
 
 # Copy the source code
 COPY webapi/tests/main_test.go ./
-RUN ls ./tests
+RUN ls .
 
 # Point d'entrée par défaut
 CMD ["go", "test", "-v", "./tests/..."]
