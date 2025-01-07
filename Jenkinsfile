@@ -2,7 +2,7 @@ def dockerHub_cred_id = "22007e59-f9ea-465f-a987-c024984a3144"
 def kubernetesConfigPath = "k8s-config"
 pipeline {
     agent {
-        label 'jenkins-slave-project'
+        label 'jenkins-slave'
     }
 
     environment {
@@ -83,14 +83,13 @@ stage('Run Tests') {
             try {
             sh """
                 # Construire l'image localement
-                docker build -f Dockerfile.test -t webapi-test:latest .
+                docker build -f Dockerfile.test -t efrei2023/webapi-test:latest .
+
                 # Charger l'image dans Minikube
-                eval \$(minikube docker-env)
-                docker save -o webapi_test.tar webapi-test:latest
-                minikube image load webapi_test.tar
+                minikube image load efrei2023/webapi_test:latest
                 kubectl run test-runner \
                   --namespace=development \
-                  --image=webapi-test:latest \
+                  --image=efrei2023/webapi-test:latest \
                   --rm -it \
                   --restart=Never \
                   -- bash -c "
