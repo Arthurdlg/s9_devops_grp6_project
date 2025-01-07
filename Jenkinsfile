@@ -81,23 +81,18 @@ stage('Run Tests') {
     steps {
         script {
             try {
-                sh """
-                ls .
+            sh """
+                docker build -f Dockerfile.test -t webapi-test:latest .
+                docker save webapi-test:latest | kubectl exec -i -n development deployment/test-deployment -- bash -c "cat > /tmp/webapi-test.tar && docker load -i /tmp/webapi-test.tar"
                 kubectl run test-runner \
                   --namespace=development \
-                  --image=golang:1.21 \
+                  --image=webapi-test:latest \
                   --rm -it \
                   --restart=Never \
-                  --command -- sleep 3600  # Démarre un conteneur en mode veille pour copier les fichiers
-                kubectl cp ${WORKSPACE}/webapi test-runner:/app/webapi --namespace=development
-                kubectl exec test-runner --namespace=development -- bash -c "
-                    cd /app/webapi &&
-                    ls . &&
-                    go mod download &&
-                    cd tests &&
-                    go test -v ./...
-                "
-                """
+                  -- bash -c "
+                    go test -v ./tests/...
+              "
+            """
             } catch (Exception e) {
                 error "Tests failed: ${e.message}"
             }
