@@ -93,7 +93,6 @@ stage('Run Tests') {
                   --image=webapi-test:latest \
                   --rm -it \
                   --restart=Never \
-                  --imagePullPolicy=Never \
                   -- bash -c "
                     go test -v ./tests/...
               "
