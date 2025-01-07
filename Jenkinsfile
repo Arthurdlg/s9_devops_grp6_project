@@ -81,15 +81,18 @@ stage('Run Tests') {
     steps {
         script {
             try {
+                withCredentials([usernamePassword(credentialsId: dockerHub_cred_id, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh """
+                    # Construire l'image localement
+                    docker build -f Dockerfile.test -t ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} .
+                    # Pousser l'image sur Docker Hub
+                    docker login -u $DOCKER_USERNAME -p \$(cat /run/secrets/$DOCKER_PASSWORD)
+                    docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG}
+                    """
+                }
+
+                // Exécuter les tests dans Minikube avec l'image poussée
                 sh """
-                # Construire l'image localement
-                docker build -f Dockerfile.test -t ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} .
-
-                # Pousser l'image sur Docker Hub
-                docker login -u ${dockerHub_cred_id} -p \$(cat /run/secrets/${dockerHub_cred_id})
-                docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG}
-
-                # Exécuter les tests dans Minikube avec l'image poussée
                 kubectl run test-runner \
                   --namespace=development \
                   --image=${env.IMAGE_NAME}-test:${env.IMAGE_TAG} \
@@ -102,12 +105,14 @@ stage('Run Tests') {
             } catch (Exception e) {
                 error "Tests failed: ${e.message}"
             } finally {
+                withCredentials([usernamePassword(credentialsId: dockerHub_cred_id, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                 sh """
-                # Supprimer l'image du hub Docker
-                docker login -u ${dockerHub_cred_id} -p \$(cat /run/secrets/${dockerHub_cred_id})
-                docker rmi ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} || true
-                docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} --quiet || true
+                    # Supprimer l'image du hub Docker
+                    docker login -u $DOCKER_USERNAME -p \$(cat /run/secrets/$DOCKER_PASSWORD)
+                    docker rmi ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} || true
+                    docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} --quiet || true
                 """
+                }
             }
         }
     }
