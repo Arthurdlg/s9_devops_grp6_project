@@ -3,11 +3,13 @@ FROM golang:1.21.5
 # Make directory for application
 WORKDIR /webapi
 
-# Copier les fichiers de l'application
-COPY ./webapi /app/webapi
-
 # Download Go modules
+COPY webapi/go.mod ./
+RUN ls .
 RUN go mod download
+
+# Copy the source code
+COPY webapi/tests ./
 
 # Point d'entrée par défaut
 CMD ["go", "test", "-v", "./tests/..."]
