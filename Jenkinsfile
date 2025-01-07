@@ -80,7 +80,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    projectImage_test = docker.build("${env.IMAGE_NAME}_test:${env.IMAGE_TAG} -f Dockerfile.test .")
+                    projectImage_test = docker.build("${env.IMAGE_NAME}_test:${env.IMAGE_TAG}", "-f Dockerfile.test .")
                     withDockerRegistry(credentialsId: dockerHub_cred_id) {
                         projectImage_test.push()
                     }
