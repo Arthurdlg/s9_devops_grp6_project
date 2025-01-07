@@ -104,7 +104,7 @@ stage('Run Tests') {
             } finally {
                 sh """
                 # Supprimer l'image du hub Docker
-                docker login -u ${dockerHub_cred_id} -p $(cat /run/secrets/${dockerHub_cred_id})
+                docker login -u ${dockerHub_cred_id} -p \$(cat /run/secrets/${dockerHub_cred_id})
                 docker rmi ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} || true
                 docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} --quiet || true
                 """
