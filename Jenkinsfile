@@ -113,6 +113,7 @@ pipeline {
                     sh """
                     kubectl apply -f ${kubernetesConfigPath}/prod-deployment.yaml
                     kubectl apply -f ${kubernetesConfigPath}/prod-service.yaml
+                    minikube service project-service -n ${env.PRODUCTION_NAMESPACE}
                     """
                 }
             }
