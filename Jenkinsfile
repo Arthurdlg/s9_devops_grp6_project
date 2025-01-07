@@ -86,7 +86,7 @@ stage('Run Tests') {
                 docker build -f Dockerfile.test -t ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} .
 
                 # Pousser l'image sur Docker Hub
-                docker login -u ${dockerHub_cred_id} -p $(cat /run/secrets/${dockerHub_cred_id})
+                docker login -u ${dockerHub_cred_id} -p \$(cat /run/secrets/${dockerHub_cred_id})
                 docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG}
 
                 # Exécuter les tests dans Minikube avec l'image poussée
