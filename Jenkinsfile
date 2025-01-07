@@ -77,46 +77,27 @@ pipeline {
             }
         }
 
-stage('Run Tests') {
-    steps {
-        script {
-            try {
-                withCredentials([usernamePassword(credentialsId: dockerHub_cred_id, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+        stage('Run Tests') {
+            steps {
+                script {
+                    projectImage_test = docker.build("${env.IMAGE_NAME}_test:${env.IMAGE_TAG} -f Dockerfile.test .")
+                    withDockerRegistry(credentialsId: dockerHub_cred_id) {
+                        projectImage_test.push()
+                    }
+                    // Exécuter les tests dans Minikube avec l'image poussée
                     sh """
-                    # Construire l'image localement
-                    docker build -f Dockerfile.test -t ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} .
-                    # Pousser l'image sur Docker Hub
-                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                    docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG}
+                    kubectl run test-runner \
+                      --namespace=development \
+                      --image=${env.IMAGE_NAME}_test:${env.IMAGE_TAG} \
+                      --rm -it \
+                      --restart=Never \
+                      -- bash -c "
+                        go test -v ./tests/...
+                      "
                     """
-                }
-
-                // Exécuter les tests dans Minikube avec l'image poussée
-                sh """
-                kubectl run test-runner \
-                  --namespace=development \
-                  --image=${env.IMAGE_NAME}-test:${env.IMAGE_TAG} \
-                  --rm -it \
-                  --restart=Never \
-                  -- bash -c "
-                    go test -v ./tests/...
-                  "
-                """
-            } catch (Exception e) {
-                error "Tests failed: ${e.message}"
-            } finally {
-                withCredentials([usernamePassword(credentialsId: dockerHub_cred_id, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                    # Supprimer l'image du hub Docker
-                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                    docker rmi ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} || true
-                    docker push ${env.IMAGE_NAME}-test:${env.IMAGE_TAG} --quiet || true
-                """
                 }
             }
         }
-    }
-}
 
         stage('Deploy to Production') {
             when {
