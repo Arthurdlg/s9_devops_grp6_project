@@ -83,11 +83,13 @@ stage('Run Tests') {
             try {
             sh """
                 docker build -f Dockerfile.test -t webapi-test:latest .
+                minikube image load webapi-test:latest
                 kubectl run test-runner \
                   --namespace=development \
                   --image=webapi-test:latest \
                   --rm -it \
                   --restart=Never \
+                  --imagePullPolicy=Never \
                   -- bash -c "
                     go test -v ./tests/...
               "
