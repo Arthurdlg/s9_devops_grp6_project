@@ -8,7 +8,9 @@ COPY webapi/go.mod ./
 RUN go mod download
 
 # Copy the source code
-COPY webapi/tests/main_test.go ./
+ADD webapi/tests ./
+RUN ls .
+COPY webapi/tests/* ./
 RUN ls .
 
 # Point d'entrée par défaut
