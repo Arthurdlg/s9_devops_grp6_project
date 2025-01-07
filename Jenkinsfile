@@ -81,7 +81,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh '''
+                        sh """
                         ls .
                         kubectl run test-runner \
                           --namespace=development \
@@ -91,14 +91,14 @@ pipeline {
                           -- bash -c "
                             mkdir -p /app/webapi/tests &&
                             mkdir -p /app/webapi &&
-                            cp -r ./webapi /app/webapi &&
+                            cp -r ${WORKSPACE}/webapi /app/webapi &&
                             cd /app/webapi &&
                             ls . &&
                             go mod download &&
                             cd tests &&
                             go test -v ./...
                           "
-                        '''
+                        """
                     } catch (Exception e) {
                         error "Tests failed: ${e.message}"
                     }
