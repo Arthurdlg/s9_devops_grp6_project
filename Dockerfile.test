@@ -5,11 +5,11 @@ WORKDIR /webapi
 
 # Download Go modules
 COPY webapi/go.mod ./
-RUN ls .
 RUN go mod download
 
 # Copy the source code
 COPY webapi/tests ./
+RUN ls ./tests
 
 # Point d'entrée par défaut
 CMD ["go", "test", "-v", "./tests/..."]
