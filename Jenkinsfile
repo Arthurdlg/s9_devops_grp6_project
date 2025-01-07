@@ -89,7 +89,6 @@ pipeline {
                     kubectl run test-runner \
                       --namespace=${env.DEVELOPMENT_NAMESPACE} \
                       --image=${env.IMAGE_NAME}_test:${env.IMAGE_TAG} \
-                      --rm \
                       --restart=Never \
                       -- bash -c "
                         go test -v ./tests/...
