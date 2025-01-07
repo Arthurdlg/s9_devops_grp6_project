@@ -83,7 +83,6 @@ stage('Run Tests') {
             try {
             sh """
                 docker build -f Dockerfile.test -t webapi-test:latest .
-                docker save webapi-test:latest | kubectl exec -i -n development deployment/test-deployment -- bash -c "cat > /tmp/webapi-test.tar && docker load -i /tmp/webapi-test.tar"
                 kubectl run test-runner \
                   --namespace=development \
                   --image=webapi-test:latest \
@@ -92,7 +91,7 @@ stage('Run Tests') {
                   -- bash -c "
                     go test -v ./tests/...
               "
-            """
+            """ //   docker save webapi-test:latest | kubectl exec -i -n development deployment/test-deployment -- bash -c "cat > /tmp/webapi-test.tar && docker load -i /tmp/webapi-test.tar"
             } catch (Exception e) {
                 error "Tests failed: ${e.message}"
             }
