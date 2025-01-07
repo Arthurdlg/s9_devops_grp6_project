@@ -86,7 +86,7 @@ stage('Run Tests') {
                 docker build -f Dockerfile.test -t efrei2023/webapi-test:latest .
 
                 # Charger l'image dans Minikube
-                minikube image load efrei2023/webapi_test:latest
+                minikube image load docker.io/efrei2023/webapi_test:latest
                 kubectl run test-runner \
                   --namespace=development \
                   --image=efrei2023/webapi-test:latest \
