@@ -83,6 +83,7 @@ pipeline {
                     try {
                         sh """
                         ls .
+                        kubectl delete pod test-runner -n=development || true
                         kubectl run test-runner \
                           --namespace=development \
                           --image=golang:1.21 \
