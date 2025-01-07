@@ -86,7 +86,8 @@ stage('Run Tests') {
                 docker build -f Dockerfile.test -t webapi-test:latest .
                 # Charger l'image dans Minikube
                 eval \$(minikube docker-env)
-                docker save webapi-test:latest | minikube image load webapi-test:latest
+                docker save -o webapi_test.tar webapi-test:latest
+                minikube image load webapi_test.tar
                 kubectl run test-runner \
                   --namespace=development \
                   --image=webapi-test:latest \
