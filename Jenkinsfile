@@ -71,7 +71,7 @@ pipeline {
                 script {
                     sh """
                     kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
-                    kubectl apply -f ${kubernetesConfigPath}/dev-service.yaml
+                    minikube service project-app -n ${env.DEVELOPMENT_NAMESPACE}
                     """
                 }
             }
@@ -98,7 +98,12 @@ pipeline {
                     sleep 10
                     kubectl describe pod "$name_test_pod" --namespace=${env.DEVELOPMENT_NAMESPACE}
                     kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE}
+
                     """ // kubectl delete pod test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} || true
+
+                    // Copie des logs pour Jenkins
+                    sh "kubectl cp ${env.DEVELOPMENT_NAMESPACE}/$name_test_pod:/tmp/test-logs.txt ${WORKSPACE}/test-logs.txt"
+                    sh "cat ${WORKSPACE}/test-logs.txt"
                 }
             }
         }
@@ -111,8 +116,7 @@ pipeline {
                 script {
                     sh """
                     kubectl apply -f ${kubernetesConfigPath}/prod-deployment.yaml
-                    kubectl apply -f ${kubernetesConfigPath}/prod-service.yaml
-                    minikube service project-service -n ${env.PRODUCTION_NAMESPACE}
+                    minikube service project-app -n ${env.PRODUCTION_NAMESPACE}
                     """
                 }
             }
