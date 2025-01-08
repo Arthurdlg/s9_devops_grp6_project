@@ -85,17 +85,19 @@ pipeline {
                         projectImage_test.push()
                     }
                     // Exécuter les tests dans Minikube avec l'image poussée
+                    name_test_pod = "test-runner"
                     sh """
-                    kubectl delete pod test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} || true
-                    kubectl run test-runner \
+                    kubectl delete pod $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE} || true
+                    kubectl run $name_test_pod \
                       --namespace=${env.DEVELOPMENT_NAMESPACE} \
                       --image=${env.IMAGE_NAME}_test:${env.IMAGE_TAG} \
                       --restart=Never \
                       -- bash -c "
                         go test -v ./tests/...
                       "
-                    kubectl wait --for=condition=kubernetesReady --timeout=30s pod/test-runner --namespace=${env.DEVELOPMENT_NAMESPACE}
-                    kubectl logs test-runner --namespace=${env.DEVELOPMENT_NAMESPACE}
+                    sleep 10
+                    kubectl describe pod "$name_test_pod" --namespace=${env.DEVELOPMENT_NAMESPACE}
+                    kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE}
                     """ // kubectl delete pod test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} || true
                 }
             }
