@@ -20,12 +20,12 @@ spec:
           image: efrei2023/s9_do_grp6_project:latest
           ports:
             - containerPort: 80
-#          readinessProbe:
-#            httpGet:
-#              path: /healthcheck
-#              port: 81
-#            initialDelaySeconds: 5
-#            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 81
+            initialDelaySeconds: 10
+            # periodSeconds: 10
 
 ---
 apiVersion: v1
