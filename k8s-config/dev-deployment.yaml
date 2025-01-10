@@ -23,7 +23,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthcheck
-              port: 81
+              port: 80
             initialDelaySeconds: 10
             # periodSeconds: 10
 
