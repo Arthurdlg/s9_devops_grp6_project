@@ -12,7 +12,7 @@ COPY webapi/main.go ./
 
 # Build
 RUN go build -o main
-EXPOSE 81
+EXPOSE 80
 
 # Run
 CMD ["./main"]
