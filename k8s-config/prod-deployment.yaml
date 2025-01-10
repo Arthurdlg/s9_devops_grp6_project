@@ -19,13 +19,13 @@ spec:
         - name: project-app-container
           image: efrei2023/s9_do_grp6_project:latest
           ports:
-            - containerPort: 81
-          readinessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 81
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            - containerPort: 80
+#          readinessProbe:
+#            httpGet:
+#              path: /healthcheck
+#              port: 80
+#            initialDelaySeconds: 5
+#            periodSeconds: 10
 
 ---
 apiVersion: v1
@@ -38,7 +38,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 81
-      targetPort: 81
+    - port: 80
+      targetPort: 8081
+      nodePort: 30080
   selector:
-    app: project-app
+    app.kubernetes.io/name: project-app
