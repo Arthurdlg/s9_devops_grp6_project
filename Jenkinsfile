@@ -8,6 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "efrei2023/s9_do_grp6_project"
         IMAGE_TAG = "latest"
+        DEPLOYMENT_NAME = "project-app"
         DEVELOPMENT_NAMESPACE = "development"
         PRODUCTION_NAMESPACE = "production"
     }
@@ -70,8 +71,9 @@ pipeline {
             steps {
                 script {
                     sh """
+                    kubectl delete deployment ${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE} || true
                     kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
-                    minikube service project-app -n ${env.DEVELOPMENT_NAMESPACE}
+                    minikube service ${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE}
                     """
                 }
             }
@@ -115,8 +117,9 @@ pipeline {
             steps {
                 script {
                     sh """
+                    kubectl delete deployment ${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE} || true
                     kubectl apply -f ${kubernetesConfigPath}/prod-deployment.yaml
-                    minikube service project-app -n ${env.PRODUCTION_NAMESPACE}
+                    minikube service ${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE}
                     """
                 }
             }
