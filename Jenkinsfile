@@ -73,6 +73,8 @@ pipeline {
                     sh """
                     kubectl delete deployment ${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE} || true
                     kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
+                    sleep 5
+                    kubectl get pods -n ${env.DEVELOPMENT_NAMESPACE}
                     minikube service ${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE}
                     """
                 }
@@ -119,6 +121,8 @@ pipeline {
                     sh """
                     kubectl delete deployment ${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE} || true
                     kubectl apply -f ${kubernetesConfigPath}/prod-deployment.yaml
+                    sleep 5
+                    kubectl get pods -n ${env.DEVELOPMENT_NAMESPACE}
                     minikube service ${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE}
                     """
                 }
