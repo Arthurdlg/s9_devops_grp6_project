@@ -28,6 +28,28 @@ pipeline {
             }
         }
 
+        stage('Run Local Tests') {
+            steps {
+                script {
+                    try {
+                        sh """
+                        docker run -d -p 81:81 --name project-app-test-cont ${env.IMAGE_NAME}:${env.IMAGE_TAG}
+                        docker start project-app-test-cont
+
+                        # Aller dans le dossier de l'application
+                        cd webapi
+                        # Télécharger les modules Go
+                        go mod download
+                        # Exécuter les tests
+                        go test -v ./tests/...
+                        """
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    finally { sh "docker rm -f project-test-container || true" }
+            }
+        }
+
         stage('Publish project Image') {
             steps {
                 script {
@@ -75,8 +97,6 @@ pipeline {
                         kubectl delete deployment ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE} || true
                         kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
                         kubectl wait --for=condition=available --timeout=45s deployment/${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
-                        kubectl expose deployment ${DEPLOYMENT_NAME} --port=81 --target-port=81 -n $DEVELOPMENT_NAMESPACE
-                        # kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $DEVELOPMENT_NAMESPACE
                         kubectl get pods,deployments,services -n ${DEVELOPMENT_NAMESPACE}
                         minikube service ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
                     """
@@ -84,33 +104,25 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Validate Deployment with Curl') {
             steps {
                 script {
-                    projectImage_test = docker.build("${env.IMAGE_NAME}_test:${env.IMAGE_TAG}", "-f Dockerfile.test .")
-                    withDockerRegistry(credentialsId: dockerHub_cred_id) {
-                        projectImage_test.push()
-                    }
-                    // Exécuter les tests dans Minikube avec l'image poussée
-                    name_test_pod = "test-runner"
                     sh """
-                    kubectl delete pod $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE} || true
-                    kubectl run $name_test_pod \
-                      --namespace=${env.DEVELOPMENT_NAMESPACE} \
-                      --image=${env.IMAGE_NAME}_test:${env.IMAGE_TAG} \
-                      --restart=Never \
-                      -- bash -c "
-                        go test -v ./tests/...
-                      "
-                    kubectl wait --for=condition=available deployment/${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
-                    kubectl describe pod "$name_test_pod" --namespace=${env.DEVELOPMENT_NAMESPACE}
-                    echo \$(kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE})
-
-                    """ // kubectl delete pod test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} || true
-
-                    // Copie des logs pour Jenkins
-                    // sh "kubectl cp ${env.DEVELOPMENT_NAMESPACE}/$name_test_pod:/tmp/test-logs.txt ${WORKSPACE}/test-logs.txt"
-                    // sh "cat ${WORKSPACE}/test-logs.txt"
+                    # Récupérer l'URL du service déployé
+                    SERVICE_URL=\$(minikube service ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE} --url | head -n 1)
+                    
+                    # Vérification de l'endpoint /healthcheck
+                    curl --fail --silent --show-error \${SERVICE_URL}/healthcheck || exit 1
+                    
+                    # Vérification d'une requête GET classique
+                    RESPONSE_CODE=\$(curl -o /dev/null -s -w "%{http_code}" \${SERVICE_URL}/)
+                    if [ "\$RESPONSE_CODE" -ne 200 ]; then
+                        echo "GET request failed with HTTP code \$RESPONSE_CODE"
+                        exit 1
+                    fi
+                    
+                    echo "Application is available and responded with HTTP 200 on /"
+                    """
                 }
             }
         }
@@ -124,10 +136,8 @@ pipeline {
                     sh """
                         kubectl delete service ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE} || true
                         kubectl delete deployment ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE} || true
-                        kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
+                        kubectl apply -f ${kubernetesConfigPath}/prod-deployment.yaml
                         kubectl wait --for=condition=available --timeout=45s deployment/${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE}
-                        kubectl expose deployment ${DEPLOYMENT_NAME} --port=81 --target-port=81 -n $PRODUCTION_NAMESPACE
-                        # kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $PRODUCTION_NAMESPACE
                         kubectl get pods,deployments,services -n ${PRODUCTION_NAMESPACE}
                         minikube service ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE}
                     """
