@@ -36,7 +36,7 @@ pipeline {
                         docker run -d -p 81:81 --name project-app-test-cont ${env.IMAGE_NAME}:${env.IMAGE_TAG}
                         docker start project-app-test-cont
 
-                        rm -rf /usr/local/go && curl -sL https://go.dev/dl/go1.21.5.linux-amd64.tar.gz | tar -C /usr/local -xzf
+                        rm -rf /usr/local/go && curl -sL https://go.dev/dl/go1.21.5.linux-amd64.tar.gz | tar -C /usr/local -xz
                         export PATH=\$PATH:/usr/local/go/bin
                         # Aller dans le dossier de l'application
                         cd webapi
