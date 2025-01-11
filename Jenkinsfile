@@ -71,11 +71,13 @@ pipeline {
             steps {
                 script {
                     sh """
-                    kubectl delete deployment ${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE} || true
-                    kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
-                    kubectl wait --for=condition=Ready deployment/${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE}
-                    kubectl get pods -n ${env.DEVELOPMENT_NAMESPACE}
-                    minikube service ${env.DEPLOYMENT_NAME} -n ${env.DEVELOPMENT_NAMESPACE}
+                        kubectl delete deployment ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE} || true
+                        kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
+                        kubectl wait --for=condition=available --timeout=45s deployment/${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
+                        # kubectl expose deployment ${DEPLOYMENT_NAME} --port=8081 --target-port=81 -n $DEVELOPMENT_NAMESPACE
+                        kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $DEVELOPMENT_NAMESPACE
+                        kubectl get pods,deployments,services -n ${DEVELOPMENT_NAMESPACE}
+                        minikube service ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
                     """
                 }
             }
@@ -119,11 +121,13 @@ pipeline {
             steps {
                 script {
                     sh """
-                    kubectl delete deployment ${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE} || true
-                    kubectl apply -f ${kubernetesConfigPath}/prod-deployment.yaml
-                    kubectl wait --for=condition=Ready deployment/${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE}
-                    kubectl get pods -n ${env.DEVELOPMENT_NAMESPACE}
-                    minikube service ${env.DEPLOYMENT_NAME} -n ${env.PRODUCTION_NAMESPACE}
+                        kubectl delete deployment ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE} || true
+                        kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
+                        kubectl wait --for=condition=available --timeout=45s deployment/${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE}
+                        # kubectl expose deployment ${DEPLOYMENT_NAME} --port=8081 --target-port=81 -n $PRODUCTION_NAMESPACE
+                        kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $PRODUCTION_NAMESPACE
+                        kubectl get pods,deployments,services -n ${PRODUCTION_NAMESPACE}
+                        minikube service ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE}
                     """
                 }
             }
