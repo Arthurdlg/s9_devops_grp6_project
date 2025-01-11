@@ -104,7 +104,7 @@ pipeline {
                       "
                     kubectl wait --for=condition=available deployment/${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
                     kubectl describe pod "$name_test_pod" --namespace=${env.DEVELOPMENT_NAMESPACE}
-                    echo $(kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE})
+                    echo \$(kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE})
 
                     """ // kubectl delete pod test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} || true
 
