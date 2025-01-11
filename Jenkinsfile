@@ -102,15 +102,15 @@ pipeline {
                       -- bash -c "
                         go test -v ./tests/...
                       "
-                    sleep 10
+                    kubectl wait --for=condition=available deployment/${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
                     kubectl describe pod "$name_test_pod" --namespace=${env.DEVELOPMENT_NAMESPACE}
-                    kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE}
+                    echo $(kubectl logs $name_test_pod --namespace=${env.DEVELOPMENT_NAMESPACE})
 
                     """ // kubectl delete pod test-runner --namespace=${env.DEVELOPMENT_NAMESPACE} || true
 
                     // Copie des logs pour Jenkins
-                    sh "kubectl cp ${env.DEVELOPMENT_NAMESPACE}/$name_test_pod:/tmp/test-logs.txt ${WORKSPACE}/test-logs.txt"
-                    sh "cat ${WORKSPACE}/test-logs.txt"
+                    // sh "kubectl cp ${env.DEVELOPMENT_NAMESPACE}/$name_test_pod:/tmp/test-logs.txt ${WORKSPACE}/test-logs.txt"
+                    // sh "cat ${WORKSPACE}/test-logs.txt"
                 }
             }
         }
