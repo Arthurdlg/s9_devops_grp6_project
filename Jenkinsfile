@@ -75,8 +75,8 @@ pipeline {
                         kubectl delete deployment ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE} || true
                         kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
                         kubectl wait --for=condition=available --timeout=45s deployment/${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
-                        # kubectl expose deployment ${DEPLOYMENT_NAME} --port=8081 --target-port=81 -n $DEVELOPMENT_NAMESPACE
-                        kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $DEVELOPMENT_NAMESPACE
+                        kubectl expose deployment ${DEPLOYMENT_NAME} --port=81 --target-port=81 -n $DEVELOPMENT_NAMESPACE
+                        # kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $DEVELOPMENT_NAMESPACE
                         kubectl get pods,deployments,services -n ${DEVELOPMENT_NAMESPACE}
                         minikube service ${DEPLOYMENT_NAME} -n ${DEVELOPMENT_NAMESPACE}
                     """
@@ -126,8 +126,8 @@ pipeline {
                         kubectl delete deployment ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE} || true
                         kubectl apply -f ${kubernetesConfigPath}/dev-deployment.yaml
                         kubectl wait --for=condition=available --timeout=45s deployment/${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE}
-                        # kubectl expose deployment ${DEPLOYMENT_NAME} --port=8081 --target-port=81 -n $PRODUCTION_NAMESPACE
-                        kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $PRODUCTION_NAMESPACE
+                        kubectl expose deployment ${DEPLOYMENT_NAME} --port=81 --target-port=81 -n $PRODUCTION_NAMESPACE
+                        # kubectl create service nodeport ${DEPLOYMENT_NAME} --tcp=81:81 -n $PRODUCTION_NAMESPACE
                         kubectl get pods,deployments,services -n ${PRODUCTION_NAMESPACE}
                         minikube service ${DEPLOYMENT_NAME} -n ${PRODUCTION_NAMESPACE}
                     """
