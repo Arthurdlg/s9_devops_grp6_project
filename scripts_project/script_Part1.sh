@@ -19,7 +19,6 @@ fi
 # Si tout est correctement importé, exécuter le reste du script
 echo "Namespace utilisé : $NAMESPACE"
 echo "----- Tout est correctement importé."
-pause_or_exit
 
 echo "---- Step: Récupération du mot de passe initial de Jenkins"
 sleep 3  # Attendre que Jenkins démarre
@@ -28,18 +27,14 @@ JENKINS_PASS=$(docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPas
 JENKINS_CRUMB=$(curl -s --user "admin:$JENKINS_PASS" "$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
 echo "MDP admin à entrer dans Jenkins: $JENKINS_PASS"
 
-# Étape 3 : Créer un réseau Docker
-echo "---- Step: Créer un réseau Docker pour l'infrastructure"
-docker network create --driver bridge devops_project || echo "Le réseau 'devops_project' existe déjà."
-
-# Arrêter et supprimer tous les conteneurs sauf ceux spécifiés
-docker stop s9-do_grp6-project:1 || true
-docker rm   s9-do_grp6-project:1 || true
-docker rmi s9-do_grp6-project:1 || true
+echo "When you are ready, launch the pipeline"
+pause_or_exit
 
 # Exécuter les actions selon l'option choisie
 echo "---- Step: Lancement de la pipeline"
-DIR_FOR_AGENT="/home/ethor/Documents/S9_DevOps_project" # TO_DEFINED
+DIR_FOR_AGENT="/home/ethor/Documents/jenkins-agent" # TO_DEFINED
+AGENT_NAME="jenkins-slave"
+AGENT_KEY="de3a607608bad1d0eb6e12af5c019f4c064572150a4dd77e6549f604abc4d601"
 
 # Run de l'agent jenkins-slave
 sudo apt install openjdk-21-jre-headless -y
@@ -72,8 +67,8 @@ if pgrep -f "java -jar agent.jar" > /dev/null; then
 	    sleep 3  # Petite pause pour garantir l'arrêt complet du processus
 
 	    # Lancer une nouvelle instance de l'agent Jenkins
-	    java -jar agent.jar -url http://localhost:8080/ -secret 5f5aeb8c6bdf2eacdb82050d12c4c676ab6eae9ee71cfb13abe2c7c9bc1c30a9 \
--name "jenkins-slave-project" -webSocket -workDir "$DIR_FOR_AGENT" &
+	    java -jar agent.jar -url http://localhost:8080/ -secret $AGENT_KEY \
+-name $AGENT_NAME -webSocket -workDir "$DIR_FOR_AGENT" &
 	    sleep 5
 	else
 	    echo "L'agent en cours d'exécution ne sera pas arrêté ni redémarré. Continuation du script."
@@ -81,8 +76,8 @@ if pgrep -f "java -jar agent.jar" > /dev/null; then
 else
 	# Aucun agent en cours, lancer une nouvelle instance
 	echo "Aucun agent en cours, lancement d'une nouvelle instance"
-	java -jar agent.jar -url http://localhost:8080/ -secret 5f5aeb8c6bdf2eacdb82050d12c4c676ab6eae9ee71cfb13abe2c7c9bc1c30a9 \
--name "jenkins-slave-project" -webSocket -workDir "$DIR_FOR_AGENT" &
+	java -jar agent.jar -url http://localhost:8080/ -secret $AGENT_KEY \
+-name $AGENT_NAME -webSocket -workDir "$DIR_FOR_AGENT" &
 	sleep 5
 fi
 
