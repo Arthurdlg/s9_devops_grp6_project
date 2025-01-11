@@ -128,6 +128,8 @@ pipeline {
                     fi
                     
                     echo "Application is available and responded with HTTP 200 on /"
+                    # Mettre à 0 les réplicas du déploiement dans le namespace development pour libérer les ressources (ports)
+                    kubectl scale deployment ${DEPLOYMENT_NAME} --replicas=0 -n ${DEVELOPMENT_NAMESPACE}
                     """
                 }
             }
