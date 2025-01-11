@@ -49,7 +49,7 @@ pipeline {
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         throw e
-                    } finally { sh "docker rm -f project-test-container || true" }
+                    } finally { sh "docker rm -f project-app-test-cont || true" }
                 }
             }
         }
