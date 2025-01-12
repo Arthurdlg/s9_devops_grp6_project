@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Run Local Tests') {
+        stage('Run Local Tests') { // Ces tests unitaires ont été rédigés par nous-mêmes (dossier tests/main_test.go)
             steps {
                 script {
                     try {
