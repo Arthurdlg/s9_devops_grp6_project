@@ -30,8 +30,8 @@ pause_or_exit
 echo "Configuring AlertManager..."
 
 # Variables nécessaires
-NAMESPACE=${1:-monitoring}              # Namespace par défaut : monitoring
-ALERT_RECEIVER=${2:-lazhar.hamel@efrei.fr}  # Email du destinataire des alertes
+NAMESPACE=${1:-production}              # Namespace par défaut : monitoring
+ALERT_RECEIVER=${2:-ethansuissa@gmail.com}  # Email du destinataire des alertes : lazhar.hamel@efrei.fr
 ALERT_SENDER=${3:-efreival@gmail.com} # Email Gmail qui envoie les alertes
 SMTP_HOST=${4:-smtp.gmail.com:587}      # Serveur SMTP de Gmail
 APP_PASSWORD_FILE=${5:-/etc/alertmanager/smtp_pass} # Fichier sécurisé contenant le mot de passe d'application
