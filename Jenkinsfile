@@ -20,10 +20,26 @@ pipeline {
             }
         }
 
-        stage('Building Image') {
+        //stage('Building Image') {
+        //    steps {
+        //        script {
+        //            projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
+        //        }
+        //    }
+        //}
+
+        
+        stage('Building Image with Buildpacks') {
             steps {
                 script {
-                    projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
+                    try {
+                        sh """
+                        pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path .
+                        """
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE: Building Image with Buildpacks'
+                        throw e
+                    }
                 }
             }
         }
