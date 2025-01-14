@@ -21,15 +21,15 @@ pipeline {
             }
         }
 
-        //stage('Building Image') {
-        //    steps {
-        //        script {
-        //            projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
-        //        }
-        //    }
-        //}
+        stage('Building Image') {
+            steps {
+                script {
+                    projectImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
+                }
+            }
+        }
 
-        
+        /*
         stage('Building Image with Buildpacks') {
             steps {
                 script {
@@ -45,7 +45,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
 
         stage('Run Local Tests') { // Ces tests unitaires ont été rédigés par nous-mêmes (dossier tests/main_test.go)
             steps {
