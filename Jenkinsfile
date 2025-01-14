@@ -35,7 +35,6 @@ pipeline {
                 script {
                     try {
                         sh """
-                            echo "jenkins ALL=(ALL) NOPASSWD:/usr/bin/rm" >> /etc/sudoers
                             cd ${APP_FOLDER}
                             pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path .
                             docker images
