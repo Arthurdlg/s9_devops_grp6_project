@@ -41,7 +41,7 @@ spec:
     - protocol: TCP
       port: 81
       targetPort: 81
-      nodePort: 30080
+      nodePort: 30081
   selector:
     # app.kubernetes.io/name: project-app
     app: project-app
