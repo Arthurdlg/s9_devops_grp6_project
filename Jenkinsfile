@@ -34,8 +34,9 @@ pipeline {
             steps {
                 script {
                     try {
+
+                        projectImage = sh "pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path ./${APP_FOLDER}"
                         sh """
-                        pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path ./${APP_FOLDER}
                         docker images
                         """
                     } catch (Exception e) {
