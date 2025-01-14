@@ -8,6 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "efrei2023/s9_do_grp6_project"
         IMAGE_TAG = "latest"
+        APP_FOLDER = "webapi"
         DEPLOYMENT_NAME = "project-app"
         DEVELOPMENT_NAMESPACE = "development"
         PRODUCTION_NAMESPACE = "production"
@@ -34,7 +35,8 @@ pipeline {
                 script {
                     try {
                         sh """
-                        pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path .
+                        pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path ./${APP_FOLDER}
+                        docker images
                         """
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE: Building Image with Buildpacks'
@@ -56,7 +58,7 @@ pipeline {
                         rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
                         export PATH=\$PATH:/usr/local/go/bin
                         # Aller dans le dossier de l'application
-                        cd webapi
+                        cd ${APP_FOLDER}
                         # Télécharger les modules Go
                         go mod download
 
