@@ -34,10 +34,10 @@ pipeline {
             steps {
                 script {
                     try {
-
-                        projectImage = sh "pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path ./${APP_FOLDER}"
                         sh """
-                        docker images
+                            cd ${APP_FOLDER}
+                            pack build ${env.IMAGE_NAME}:${env.IMAGE_TAG} --path .
+                            docker images
                         """
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE: Building Image with Buildpacks'
@@ -52,19 +52,19 @@ pipeline {
                 script {
                     try {
                         sh """
-                        docker run -d -p 81:81 --name project-app-test-cont ${env.IMAGE_NAME}:${env.IMAGE_TAG}
-                        docker start project-app-test-cont
+                            docker run -d -p 81:81 --name project-app-test-cont ${env.IMAGE_NAME}:${env.IMAGE_TAG}
+                            docker start project-app-test-cont
 
-                        curl -LO https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
-                        rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
-                        export PATH=\$PATH:/usr/local/go/bin
-                        # Aller dans le dossier de l'application
-                        cd ${APP_FOLDER}
-                        # Télécharger les modules Go
-                        go mod download
+                            curl -LO https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
+                            sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
+                            export PATH=\$PATH:/usr/local/go/bin
+                            # Aller dans le dossier de l'application
+                            cd ${APP_FOLDER}
+                            # Télécharger les modules Go
+                            go mod download
 
-                        # Exécuter les tests
-                        go test -v ./tests/...
+                            # Exécuter les tests
+                            go test -v ./tests/...
                         """
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
@@ -79,7 +79,8 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: dockerHub_cred_id) {
-                        projectImage.push()
+                        // projectImage.push()
+                        sh "docker push ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                     }
                 }
             }
