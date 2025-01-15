@@ -1,0 +1,21 @@
+config:
+  leaderElection: {}
+  logLevel: debug
+  logFormat: pretty
+  metricsNamePrefix: event_exporter_
+  receivers:
+    - name: "dump"
+      file:
+        path: "/dev/stdout"
+        layout: {}
+    - name: "loki"
+      loki:
+        url: "http://loki-gateway.loki.svc.cluster.local/loki/api/v1/push"
+        streamLabels:
+          source: kubernetes-event-exporter
+          container: kubernetes-event-exporter
+  route:
+    routes:
+      - match:
+          - receiver: "dump"
+          - receiver: "loki"
