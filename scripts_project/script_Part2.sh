@@ -1,8 +1,8 @@
 #!/bin/bash
-
 source ./utils.sh
 
-echo "=============== PROJECT PART 2 and 3: START ==================="
+echo "========================================= SETUP FOR PROJECT ==========================================="
+echo "================ A) Importations for all parts ================="
 echo "---- Step: verify importations"
 # Vérification que la variable NAMESPACE est définie
 if [[ -z "${NAMESPACE+x}" ]]; then
@@ -19,12 +19,38 @@ fi
 # Si tout est correctement importé, exécuter le reste du script
 echo "Namespace utilisé : $NAMESPACE"
 echo "----- Tout est correctement importé."
+
+echo "================ B) Importations for parts 2 and 3 ================="
+# Create namespace for production
+kubectl create namespace $NAMESPACE || echo "Namespace $NAMESPACE already exists"
+# kubectl config set-context --current --namespace=$NAMESPACE
+
+# Add Helm repositories
+echo "---- Step: Adding Helm repositories..."
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+# Install Prometheus
+echo "---- Step: Installing Prometheus..."
+helm install prometheus prometheus-community/prometheus --namespace $NAMESPACE
+
+# Install Grafana
+echo "---- Step: Installing Grafana..."
+helm install grafana grafana/grafana --namespace $NAMESPACE --set adminPassword=admin
+
+# Verify installations
+echo "---- Step: Verifying installations..."
+kubectl get pods --namespace $NAMESPACE
+
+echo "Installation completed!"
+echo "========================================= END OF SETUP ==========================================="
 pause_or_exit
 
+echo "=============== PROJECT PART 2 and 3: START ==================="
 # Apply Prometheus alerting rules
 echo "---- Step: Applying Prometheus alerting rules..."
 helm upgrade --reuse-values -f prometheus-alerts-rules.yaml prometheus prometheus-community/prometheus --namespace $NAMESPACE
-pause_or_exit
 
 # Configure AlertManager
 echo "Configuring AlertManager..."
@@ -82,16 +108,13 @@ echo "Configuration d'Alertmanager appliquée avec succès dans le namespace '$N
 pause_or_exit
 
 # Expose services for UI access
-echo "---- Step: Exposing Prometheus, Grafana, and Loki..."
+echo "---- Step: Exposing Prometheus and Grafana"
 PROMETHEUS_POD=$(kubectl get pods --namespace $NAMESPACE -l "app.kubernetes.io/name=prometheus,app.kubernetes.io/instance=prometheus" -o jsonpath="{.items[0].metadata.name}")
 kubectl --namespace $NAMESPACE port-forward $PROMETHEUS_POD 9090:9090 &
-pause_or_exit
 
 GRAFANA_POD=$(kubectl get pods --namespace $NAMESPACE -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
 kubectl --namespace $NAMESPACE port-forward $GRAFANA_POD 3000:3000 &
+
+echo "Configuration applied! Access Prometheus at http://localhost:9090, Grafana at http://localhost:3000"
 pause_or_exit
 
-kubectl port-forward --namespace $NAMESPACE svc/loki-gateway 3100:80 &
-
-echo "Configuration applied! Access Prometheus at http://localhost:9090, Grafana at http://localhost:3000, and Loki at http://localhost:3100"
-pause_or_exit

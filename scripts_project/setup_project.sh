@@ -81,6 +81,16 @@ sudo apt install gh -y
 # Part 11: Installation de Jenkins
 echo "---- Step: Installation de Jenkins"
 sudo docker run -d -p 8080:8080 -p 50000:50000 --name jenkins --restart unless-stopped jenkins/jenkins:lts-jdk17
+echo """Mettez jenkins admin pour la suppression en ajoutant cette ligne dans sudo visudo (sert pour test pipeline) : 
+echo "jenkins ALL=(ALL) NOPASSWD:/usr/bin/rm" >> /etc/sudoers
+"""
+sudo visudo
+
+echo "---- Step: Installation de Buildpack"
+sudo add-apt-repository ppa:cncf-buildpacks/pack-cli
+sudo apt update
+sudo apt install pack-cli
+pack config default-builder gcr.io/buildpacks/builder:google-22
 
 # Part 14: Vérification des installations
 echo "---- Step: Vérification des installations"
@@ -90,4 +100,5 @@ kubectl version --client    # Doit afficher kubectl v1.28.3 ou supérieur
 docker-compose --version    # Doit afficher Docker Compose v2.23.0 ou supérieur
 git --version               # Doit afficher Git 2.41.0 ou supérieur
 gh --version                # Doit afficher GitHub CL
+
 
